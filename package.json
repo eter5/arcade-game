@@ -1,0 +1,27 @@
+{
+  "name": "arcade-game",
+  "version": "1.0.0",
+  "description": "An arcade game for project 3 - FEWD Nanodegree",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eter5/frontend-nanodegree-arcade-game.git"
+  },
+  "keywords": [
+    "arcade game",
+    "p3"
+  ],
+  "author": "Israel Bastida <developer@eter5.com> (http://eter5.com/) Eter5 Lab Inc.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/eter5/frontend-nanodegree-arcade-game/issues"
+  },
+  "homepage": "https://github.com/eter5/frontend-nanodegree-arcade-game#readme",
+  "devDependencies": {
+    "browser-sync": "^2.7.6",
+    "gulp": "^3.9.0"
+  }
+}
