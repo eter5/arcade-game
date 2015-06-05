@@ -15,3 +15,8 @@ charset = utf-8
 [**.*]
 indent_style = space
 indent_size = 2
+
+# Indentation override for all JS
+[**.js]
+indent_style = space
+indent_size = 4
