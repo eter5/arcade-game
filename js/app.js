@@ -1,25 +1,19 @@
-// Returns a random integer between min (included) and max (excluded)
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
-}
-
 // Enemies our player must avoid
 var Enemy = function(yAxis) {
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
+    // Variables applied to each of our instances go here
     var sprite, x, y, speed;
 
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
 
-    // The x-axis
+    // The initial x-axis generated randomly
     this.x = getRandomInt(-500, -100);
 
-    // The y-axis
+    // The initial y-axis
     this.y = yAxis;
 
-    // The speed for our enemies
+    // The speed for our enemies generated randomly
     this.speed = getRandomInt(50, 250);
 };
 
@@ -44,9 +38,6 @@ Enemy.prototype.update = function(dt) {
     // all computers.
     nextPosition = Math.round(dt * this.speed);
     this.x      += nextPosition;
-
-    // Draw the enemy on the screen
-    this.render();
 };
 
 // Draw the enemy on the screen, required method for game
@@ -58,24 +49,54 @@ Enemy.prototype.render = function() {
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function() {
-
+    // Variables applied to each of our instances go here
     var sprite, x, y;
 
     // The image/sprite for our player
     this.sprite = 'images/char-boy.png';
+
+    // The initial x-axis
+    this.x = 202;
+
+    // The initial y-axis
+    this.y = 404;
 };
 
-// Update the player's position, required method for game
-// Parameter: dt, a time delta between ticks
-Player.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
+// Update player position, required method for game
+Player.prototype.update = function() {
+    // Clear previous frame
+    ctx.clearRect(this.x, this.y, 100, 100);
 };
 
 // Draw the player on the screen, required method for game
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
+// Handle input, required method for game
+// Parameter: keyPressed, key pressed to move the player
+Player.prototype.handleInput = function(keyPressed) {
+    // Commute the key pressed to a movement
+    switch (keyPressed) {
+        case 'left':
+            this.x -= 101;
+            break;
+
+        case 'up':
+            this.y -= 83;
+            break;
+
+        case 'right':
+            this.x += 101;
+            break;
+
+        case 'down':
+            this.y += 83;
+            break;
+
+        default:
+            break;
+    }
 };
 
 // Now instantiate your objects.
@@ -111,3 +132,11 @@ document.addEventListener('keyup', function(e) {
 
     player.handleInput(allowedKeys[e.keyCode]);
 });
+
+// This function returns a random integer
+// between min (included) and max (excluded)
+// Parameter: min, min value (included)
+// Parameter: max, max value (excluded)
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
