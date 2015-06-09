@@ -23,9 +23,6 @@ Enemy.prototype.update = function(dt) {
 
     var nextPosition;
 
-    // Clear previous frame
-    ctx.clearRect(this.x, this.y, 100, 100);
-
     // If x-axis > to the end of the canvas width
     if (this.x > getRandomInt(505, 905)) {
         // reset the x-axis and speed to a new beginning
@@ -64,8 +61,7 @@ var Player = function() {
 
 // Update player position, required method for game
 Player.prototype.update = function() {
-    // Clear previous frame
-    ctx.clearRect(this.x, this.y, 100, 100);
+    // some update code here ...
 };
 
 // Draw the player on the screen, required method for game
@@ -79,19 +75,23 @@ Player.prototype.handleInput = function(keyPressed) {
     // Commute the key pressed to a movement
     switch (keyPressed) {
         case 'left':
-            this.x -= 101;
+            // Move left without exceeding the limit of canvas
+            if (this.x !== 0) { this.x -= 101; };
             break;
 
         case 'up':
-            this.y -= 83;
+            // Move up without exceeding the limit of canvas
+            if (this.y !== -11) { this.y -= 83; };
             break;
 
         case 'right':
-            this.x += 101;
+            // Move right without exceeding the limit of canvas
+            if (this.x !== 404) { this.x += 101; };
             break;
 
         case 'down':
-            this.y += 83;
+            // Move down without exceeding the limit of canvas
+            if (this.y !== 404) { this.y += 83; };
             break;
 
         default:
