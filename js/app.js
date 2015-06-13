@@ -2,18 +2,6 @@
  *
  */
 
-
-
-
-
-
-
-
-
-
-
-
-
 // Enemies our player must avoid
 var Enemy = function(yAxis) {
     // Variables applied to each of our instances go here
@@ -102,23 +90,9 @@ Enemy.prototype.handleCollision = function() {
     // stop the enemy bug
     this.velocity = 0;
     // the enemy bug is reset to a new position after delay
-    var thisEnemy = this;
-    setTimeout(function() {thisEnemy.velocity = getRandomInt(  50,  250)}, 750);
+    var self = this;
+    setTimeout(function() { self.velocity = getRandomInt(50, 250) }, 750);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Now write your own player class
 // This class requires an update(), render() and
@@ -219,39 +193,25 @@ Player.prototype.reset = function() {
 Player.prototype.handleCollision = function() {
     // stop the player (no control with the arrow keys)
     this.activeUserControl = false;
-    // TODO: the player blinks every X seconds
-    var backupX = this.x;
+    // the player blinks some milliseconds
+    this.blinks();
+    // the player is reset to its initial position
     var self = this;
-    setTimeout(function() { self.x = -202 }, 100);
-    setTimeout(function() { self.x = backupX }, 200);
-    setTimeout(function() { self.x = -202 }, 300);
-    setTimeout(function() { self.x = backupX }, 400);
-    // the player is reset to its initial position after delay
     setTimeout(function() { self.reset() }, 500);
 }
 
-// Player blink start (state alternator)
-// Player.prototype.blink = function(xIn, xOut) {
-//     this.x = xIn;
-//     // blink loop
-//     var self = this;
-//     this.timeoutID = setTimeout(function() { self.blink(xOut, xIn) }, 100);
-// };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Player blinks
+Player.prototype.blinks = function() {
+    // backup the actual position
+    var backupX = this.x,
+    // to work properly with setTimeout()
+        self = this;
+    // TODO: this code below in a loop
+    setTimeout(function() { self.x = -202    }, 100);
+    setTimeout(function() { self.x = backupX }, 200);
+    setTimeout(function() { self.x = -202    }, 300);
+    setTimeout(function() { self.x = backupX }, 400);
+};
 
 // Now instantiate your objects.
 var enemyOne   = new Enemy( 59),
@@ -286,20 +246,6 @@ document.addEventListener('keyup', function(e) {
 
     player.handleInput(allowedKeys[e.keyCode]);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Is there a collision between two objects?
 // Parameter: objOne, The object 1
@@ -337,24 +283,3 @@ function isThereACollision(objOne, objTwo) {
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
-
-
-
-
-
-
-
-
-
-
-// in develop
-// var timeoutID;
-
-// function blinks() {
-//     console.log('blinks');
-//     timeoutID = window.setTimeout(blinks(), 100);
-// }
-
-// function stopBlinks() {
-//     window.clearTimeout(timeoutID);
-// }
