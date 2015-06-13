@@ -1,7 +1,23 @@
+/* app.js
+ *
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Enemies our player must avoid
 var Enemy = function(yAxis) {
     // Variables applied to each of our instances go here
-    var sprite, x, y, speed;
+    var sprite, x, y, width, height, velocity;
 
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
@@ -13,28 +29,61 @@ var Enemy = function(yAxis) {
     // The initial y-axis
     this.y = yAxis;
 
-    // The speed for our enemies generated randomly
-    this.speed = getRandomInt(50, 250);
+    // Width and height
+    this.width  = 96;
+    this.height = 68;
+
+    // The velocity for our enemies generated randomly
+    this.velocity = getRandomInt(50, 250);
 };
+
+// Enemy space
+// Return object The coordinates in the space occupied by an enemy
+Enemy.prototype.space = function() {
+
+    var space, leftSide, upperSide, rightSide, lowerSide,
+        widthEmptySpace = 2, heightEmptySpace = 76;
+
+    leftSide  = this.x + widthEmptySpace;
+    upperSide = this.y + heightEmptySpace;
+
+    rightSide = leftSide  + this.width;
+    lowerSide = upperSide + this.height;
+
+    space = {
+        'leftSide' : leftSide,
+        'upperSide': upperSide,
+        'rightSide': rightSide,
+        'lowerSide': lowerSide
+    };
+
+    return space;
+}
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
 
-    var nextPosition;
+    var distance;
+
+    // check if is there a collision
+    if (isThereACollision(this, player) === true) {
+        // handle collision
+        this.handleCollision();
+        player.handleCollision();
+    };
 
     // If x-axis > to the end of the canvas width
     if (this.x > getRandomInt(505, 905)) {
-        // reset the x-axis and speed to a new beginning
-        this.x     = getRandomInt(-500, -100);
-        this.speed = getRandomInt(50, 250);
+        // reset the enemy
+        this.reset();
     };
 
     // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
+    // which will ensure the game runs at the same velocity for
     // all computers.
-    nextPosition = Math.round(dt * this.speed);
-    this.x      += nextPosition;
+    distance = Math.round(this.velocity * dt);
+    this.x   += distance;
 };
 
 // Draw the enemy on the screen, required method for game
@@ -42,12 +91,41 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+// Reset the enemy on the screen
+Enemy.prototype.reset = function() {
+    this.x        = getRandomInt(-500, -100);
+    this.velocity = getRandomInt(  50,  250);
+};
+
+// Handle enemy's collision
+Enemy.prototype.handleCollision = function() {
+    // stop the enemy bug
+    this.velocity = 0;
+    // the enemy bug is reset to a new position after delay
+    var thisEnemy = this;
+    setTimeout(function() {thisEnemy.velocity = getRandomInt(  50,  250)}, 750);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function() {
     // Variables applied to each of our instances go here
-    var sprite, x, y;
+    var sprite, x, y, activeUserControl;
 
     // The image/sprite for our player
     this.sprite = 'images/char-boy.png';
@@ -57,7 +135,39 @@ var Player = function() {
 
     // The initial y-axis
     this.y = 404;
+
+    // Width and height
+    this.width  = 69;
+    this.height = 78;
+
+    // To switch on/off the control of the player
+    // with the arrow keys
+    this.activeUserControl = true;
 };
+
+// Player space
+// Return array The coordinates in the space occupied by the player
+Player.prototype.space = function() {
+
+    var space, timeoutID,
+        leftSide, upperSide, rightSide, lowerSide,
+        widthEmptySpace = 16, heightEmptySpace = 62;
+
+    leftSide  = this.x + widthEmptySpace;
+    upperSide = this.y + heightEmptySpace;
+
+    rightSide = leftSide  + this.width;
+    lowerSide = upperSide + this.height;
+
+    space = {
+        'leftSide' : leftSide,
+        'upperSide': upperSide,
+        'rightSide': rightSide,
+        'lowerSide': lowerSide
+    };
+
+    return space;
+}
 
 // Update player position, required method for game
 Player.prototype.update = function() {
@@ -72,32 +182,74 @@ Player.prototype.render = function() {
 // Handle input, required method for game
 // Parameter: keyPressed, key pressed to move the player
 Player.prototype.handleInput = function(keyPressed) {
-    // Commute the key pressed to a movement
-    switch (keyPressed) {
-        case 'left':
-            // Move left without exceeding the limit of canvas
-            if (this.x !== 0) { this.x -= 101; };
-            break;
 
-        case 'up':
-            // Move up without exceeding the limit of canvas
-            if (this.y !== -11) { this.y -= 83; };
-            break;
-
-        case 'right':
-            // Move right without exceeding the limit of canvas
-            if (this.x !== 404) { this.x += 101; };
-            break;
-
-        case 'down':
-            // Move down without exceeding the limit of canvas
-            if (this.y !== 404) { this.y += 83; };
-            break;
-
-        default:
-            break;
-    }
+    if (this.activeUserControl === true) {
+        // Commute the key pressed to a movement
+        switch (keyPressed) {
+            case 'left':
+                // Move left without exceeding the limit of canvas
+                if (this.x !== 0) { this.x -= 101; };
+                break;
+            case 'up':
+                // Move up without exceeding the limit of canvas
+                if (this.y !== -11) { this.y -= 83; };
+                break;
+            case 'right':
+                // Move right without exceeding the limit of canvas
+                if (this.x !== 404) { this.x += 101; };
+                break;
+            case 'down':
+                // Move down without exceeding the limit of canvas
+                if (this.y !== 404) { this.y += 83; };
+                break;
+            default:
+                break;
+        }
+    };
 };
+
+// Reset the player to its initial position
+Player.prototype.reset = function() {
+    stopBlinks();
+    this.x = 202;
+    this.y = 404;
+    this.activeUserControl = true;
+};
+
+// Handle player's collision
+Player.prototype.handleCollision = function() {
+    // stop the player (no control with the arrow keys)
+    this.activeUserControl = false;
+    // TODO: the player blinks every X seconds
+    // this.blink(this.x, -202);
+    // blinks();
+    // the player is reset to its initial position after delay
+    var self = this;
+    setTimeout(function() { self.reset() }, 500);
+}
+
+// Player blink start (state alternator)
+Player.prototype.blink = function(xIn, xOut) {
+    this.x = xIn;
+    // blink loop
+    var self = this;
+    this.timeoutID = setTimeout(function() { self.blink(xOut, xIn) }, 100);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Now instantiate your objects.
 var enemyOne   = new Enemy( 59),
@@ -133,6 +285,49 @@ document.addEventListener('keyup', function(e) {
     player.handleInput(allowedKeys[e.keyCode]);
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Is there a collision between two objects?
+// Parameter: objOne, The object 1
+// Parameter: objTwo, The object 2
+// Return bollean true if collision || false if not.
+function isThereACollision(objOne, objTwo) {
+    // get the coordinates that occupy objects in space
+    var objOneSpace = objOne.space(),
+        objTwoSpace = objTwo.space(),
+        // collisions from all sides
+        leftCollision  = objOneSpace.leftSide  < objTwoSpace.rightSide,
+        upperCollision = objOneSpace.upperSide < objTwoSpace.lowerSide,
+        rightCollision = objOneSpace.rightSide > objTwoSpace.leftSide,
+        lowerCollision = objOneSpace.lowerSide > objTwoSpace.upperSide,
+        // The space occupied by the object One
+        // is overlapped by the object Two
+        collision = leftCollision  &&
+                    upperCollision &&
+                    rightCollision &&
+                    lowerCollision;
+
+    if (collision === true) {
+        // a collision has occurred
+        return true;
+    } else {
+        // no collision
+        return false;
+    }
+}
+
 // This function returns a random integer
 // between min (included) and max (excluded)
 // Parameter: min, min value (included)
@@ -140,3 +335,24 @@ document.addEventListener('keyup', function(e) {
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
+
+
+
+
+
+
+
+
+
+
+// in develop
+// var timeoutID;
+
+// function blinks() {
+//     console.log('blinks');
+//     timeoutID = window.setTimeout(blinks(), 100);
+// }
+
+// function stopBlinks() {
+//     window.clearTimeout(timeoutID);
+// }
