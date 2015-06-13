@@ -210,7 +210,6 @@ Player.prototype.handleInput = function(keyPressed) {
 
 // Reset the player to its initial position
 Player.prototype.reset = function() {
-    stopBlinks();
     this.x = 202;
     this.y = 404;
     this.activeUserControl = true;
@@ -221,20 +220,23 @@ Player.prototype.handleCollision = function() {
     // stop the player (no control with the arrow keys)
     this.activeUserControl = false;
     // TODO: the player blinks every X seconds
-    // this.blink(this.x, -202);
-    // blinks();
-    // the player is reset to its initial position after delay
+    var backupX = this.x;
     var self = this;
+    setTimeout(function() { self.x = -202 }, 100);
+    setTimeout(function() { self.x = backupX }, 200);
+    setTimeout(function() { self.x = -202 }, 300);
+    setTimeout(function() { self.x = backupX }, 400);
+    // the player is reset to its initial position after delay
     setTimeout(function() { self.reset() }, 500);
 }
 
 // Player blink start (state alternator)
-Player.prototype.blink = function(xIn, xOut) {
-    this.x = xIn;
-    // blink loop
-    var self = this;
-    this.timeoutID = setTimeout(function() { self.blink(xOut, xIn) }, 100);
-};
+// Player.prototype.blink = function(xIn, xOut) {
+//     this.x = xIn;
+//     // blink loop
+//     var self = this;
+//     this.timeoutID = setTimeout(function() { self.blink(xOut, xIn) }, 100);
+// };
 
 
 
