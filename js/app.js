@@ -46,7 +46,7 @@ Enemy.prototype.space = function() {
     };
 
     return space;
-}
+};
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
@@ -92,7 +92,7 @@ Enemy.prototype.handleCollision = function() {
     // the enemy bug is reset to a new position after delay
     var self = this;
     setTimeout(function() { self.velocity = getRandomInt(50, 250) }, 750);
-}
+};
 
 // Now write your own player class
 // This class requires an update(), render() and
@@ -141,16 +141,6 @@ Player.prototype.space = function() {
     };
 
     return space;
-}
-
-// Update player position, required method for game
-Player.prototype.update = function() {
-    // some update code here ...
-};
-
-// Draw the player on the screen, required method for game
-Player.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
 // Handle input, required method for game
@@ -182,11 +172,48 @@ Player.prototype.handleInput = function(keyPressed) {
     };
 };
 
+// Update player position, required method for game
+Player.prototype.update = function() {
+    if (this.reachesWater() === true) {
+        // the player won the game
+        this.wonTheGame();
+    };
+};
+
+// Draw the player on the screen, required method for game
+Player.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
 // Reset the player to its initial position
 Player.prototype.reset = function() {
     this.x = 202;
     this.y = 404;
     this.activeUserControl = true;
+};
+
+// The player won the game
+Player.prototype.wonTheGame = function() {
+    // stop the player (no control with the arrow keys)
+    this.activeUserControl = false;
+    // display the message 'You Win!'
+    drawTheTopMessage('You Win!', 'gold', 'GoldenRod');
+    // the player is reset to its initial position
+    var self = this;
+    setTimeout(function() {
+        ctx.clearRect(0, 0, 505, 40);
+        self.reset();
+    }, 1000);
+};
+
+// Check if the player reaches the water
+// Return boolean true if reaches the water || false if not.
+Player.prototype.reachesWater = function() {
+    if (this.y === -11) {
+        return true;
+    } else {
+        return false;
+    };
 };
 
 // Handle player's collision
@@ -198,7 +225,7 @@ Player.prototype.handleCollision = function() {
     // the player is reset to its initial position
     var self = this;
     setTimeout(function() { self.reset() }, 500);
-}
+};
 
 // Player blinks
 Player.prototype.blinks = function() {
@@ -247,10 +274,24 @@ document.addEventListener('keyup', function(e) {
     player.handleInput(allowedKeys[e.keyCode]);
 });
 
+// Draw the top message
+function drawTheTopMessage(message, fillColor, strokeColor) {
+    ctx.font      = '28pt Impact';
+    ctx.textAlign = 'center';
+
+    ctx.fillStyle = fillColor;
+    ctx.fillText(message, 252, 37);
+
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth   = 2;
+
+    ctx.strokeText(message, 252, 37);
+}
+
 // Is there a collision between two objects?
 // Parameter: objOne, The object 1
 // Parameter: objTwo, The object 2
-// Return bollean true if collision || false if not.
+// Return boolean true if collision || false if not.
 function isThereACollision(objOne, objTwo) {
     // get the coordinates that occupy objects in space
     var objOneSpace = objOne.space(),
