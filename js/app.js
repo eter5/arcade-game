@@ -4,13 +4,7 @@
 
 /* Global variables needed
  */
-var enemyOne,
-    enemyTwo,
-    enemyThree,
-    enemyFour,
-    enemyFive,
-    enemySix,
-    allEnemies,
+var allEnemies,
     player;
 
 /* Global functions needed
