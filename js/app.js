@@ -47,13 +47,7 @@ function isThereACollision(objOne, objTwo) {
                     rightCollision &&
                     lowerCollision;
 
-    if (collision === true) {
-        // a collision has occurred
-        return true;
-    } else {
-        // no collision
-        return false;
-    }
+    return (collision === true) ? true : false;
 }
 
 /* This function draws the top message
@@ -338,11 +332,7 @@ Player.prototype.reachesWater = function () {
 
     'use strict';
 
-    if (this.y === -11) {
-        return true;
-    } else {
-        return false;
-    }
+    return (this.y === -11) ? true : false;
 };
 
 /* Handle player's collision
