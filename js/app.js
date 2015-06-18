@@ -1,11 +1,9 @@
 /* app.js
- *
+ * This file provides to the game all objects, functions and instances required.
  */
 
-
-
-
-
+/* Global variables needed
+ */
 var enemyOne,
     enemyTwo,
     enemyThree,
@@ -15,13 +13,14 @@ var enemyOne,
     allEnemies,
     player;
 
+/* Global functions needed
+ */
 
-
-
-// This function returns a random integer
-// between min (included) and max (excluded)
-// Parameter: min, min value (included)
-// Parameter: max, max value (excluded)
+/* This function returns a random integer
+ * between min (included) and max (excluded)
+ * Parameter: min, min value (included)
+ * Parameter: max, max value (excluded)
+ */
 function getRandomInt(min, max) {
 
     'use strict';
@@ -29,10 +28,13 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-// Is there a collision between two objects?
-// Parameter: objOne, The object 1
-// Parameter: objTwo, The object 2
-// Return boolean true if collision || false if not.
+/* Is there a collision between two objects?
+ * This function checks whether there has been a collision
+ * between two objects.
+ * Parameter: objOne, The object 1
+ * Parameter: objTwo, The object 2
+ * Return boolean true if collision || false if not.
+ */
 function isThereACollision(objOne, objTwo) {
 
     'use strict';
@@ -60,7 +62,11 @@ function isThereACollision(objOne, objTwo) {
     }
 }
 
-// Draw the top message
+/* This function draws the top message
+ * Parameter: message, The message to draw
+ * Parameter: fillColor, The fill color
+ * Parameter: strokeColor, The stroke color
+ */
 function drawTheTopMessage(message, fillColor, strokeColor) {
 
     'use strict';
@@ -77,24 +83,28 @@ function drawTheTopMessage(message, fillColor, strokeColor) {
     window.ctx.strokeText(message, 252, 37);
 }
 
-// Enemies our player must avoid
-var Enemy = function (yAxis) {
+/* The Enemy's class
+ * Enemies our player must avoid
+ */
+var Enemy = function () {
 
     'use strict';
-    // Variables applied to each of our instances go here
-    var sprite, x, y, width, height, velocity;
+    // We declare the properties of our enemies
+    var sprite, x, y, width, height, velocity, road;
 
     // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
+    // a helper resources.js
     this.sprite = 'images/enemy-bug.png';
 
     // The initial x-axis generated randomly
-    this.x = getRandomInt(-500, -100);
+    this.x = getRandomInt(-303, -101);
 
-    // The initial y-axis
-    this.y = yAxis;
+    // 3 different roads for our enemies
+    this.road = [59, 142, 225];
+    // The initial y-axis generated randomly
+    this.y = this.road[getRandomInt(0, 3)];
 
-    // Width and height
+    // the width and height
     this.width  = 96;
     this.height = 68;
 
@@ -102,18 +112,19 @@ var Enemy = function (yAxis) {
     this.velocity = getRandomInt(50, 250);
 };
 
-// Enemy space
-// Return object The coordinates in the space occupied by an enemy
+/* The space occupied by an enemy at the moment
+ * Return object The coordinates in the space occupied by an enemy
+ */
 Enemy.prototype.space = function () {
 
     'use strict';
 
     var space, leftSide, upperSide, rightSide, lowerSide,
         widthEmptySpace = 2, heightEmptySpace = 76;
-
+    // Delimiting the real space by eliminating
+    // the empty space of the image/sprite
     leftSide  = this.x + widthEmptySpace;
     upperSide = this.y + heightEmptySpace;
-
     rightSide = leftSide  + this.width;
     lowerSide = upperSide + this.height;
 
@@ -127,8 +138,9 @@ Enemy.prototype.space = function () {
     return space;
 };
 
-// Update the enemy's position, required method for game
-// Parameter: dt, a time delta between ticks
+/* Update the enemy's position, required method for game
+ * Parameter: dt, a time delta between ticks
+ */
 Enemy.prototype.update = function (dt) {
 
     'use strict';
@@ -143,7 +155,7 @@ Enemy.prototype.update = function (dt) {
     }
 
     // If x-axis > to the end of the canvas width
-    if (this.x > getRandomInt(505, 905)) {
+    if (this.x > getRandomInt(505, 705)) {
         // reset the enemy
         this.reset();
     }
@@ -155,7 +167,8 @@ Enemy.prototype.update = function (dt) {
     this.x   += distance;
 };
 
-// Draw the enemy on the screen, required method for game
+/* Draw the enemy on the screen, required method for game
+ */
 Enemy.prototype.render = function () {
 
     'use strict';
@@ -163,33 +176,38 @@ Enemy.prototype.render = function () {
     window.ctx.drawImage(window.Resources.get(this.sprite), this.x, this.y);
 };
 
-// Reset the enemy on the screen
+/* Reset the enemy on the screen
+ */
 Enemy.prototype.reset = function () {
 
     'use strict';
 
-    this.x        = getRandomInt(-500, -100);
+    this.x        = getRandomInt(-303, -101);
+    this.y        = this.road[getRandomInt(0, 3)];
     this.velocity = getRandomInt(50, 250);
 };
 
-// Handle enemy's collision
+/* Handle enemy's collision
+ */
 Enemy.prototype.handleCollision = function () {
 
     'use strict';
     // stop the enemy bug
     this.velocity = 0;
-    // the enemy bug is reset to a new position after delay
+    // the enemy's velocity is reset
+    // after a short delay
     var self = this;
     setTimeout(function () { self.velocity = getRandomInt(50, 250); }, 750);
 };
 
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
+/* Our player's class
+ * This class requires an update(), render() and
+ * a handleInput() method.
+ */
 var Player = function () {
 
     'use strict';
-    // Variables applied to each of our instances go here
+    // We declare the properties of our player
     var sprite, x, y, activeUserControl;
 
     // The image/sprite for our player
@@ -210,19 +228,19 @@ var Player = function () {
     this.activeUserControl = true;
 };
 
-// Player space
-// Return array The coordinates in the space occupied by the player
+/* Player space
+ * Return array The coordinates in the space occupied by the player
+ */
 Player.prototype.space = function () {
 
     'use strict';
 
-    var space, timeoutID,
-        leftSide, upperSide, rightSide, lowerSide,
+    var space, leftSide, upperSide, rightSide, lowerSide,
         widthEmptySpace = 16, heightEmptySpace = 62;
-
+    // Delimiting the real space by eliminating
+    // the empty space of the image/sprite
     leftSide  = this.x + widthEmptySpace;
     upperSide = this.y + heightEmptySpace;
-
     rightSide = leftSide  + this.width;
     lowerSide = upperSide + this.height;
 
@@ -236,8 +254,9 @@ Player.prototype.space = function () {
     return space;
 };
 
-// Handle input, required method for game
-// Parameter: keyPressed, key pressed to move the player
+/* Handle input, required method for game
+ * Parameter: keyPressed, key pressed to move the player
+ */
 Player.prototype.handleInput = function (keyPressed) {
 
     'use strict';
@@ -267,7 +286,8 @@ Player.prototype.handleInput = function (keyPressed) {
     }
 };
 
-// Update player position, required method for game
+/* Update player position, required method for game
+ */
 Player.prototype.update = function () {
 
     'use strict';
@@ -278,7 +298,8 @@ Player.prototype.update = function () {
     }
 };
 
-// Draw the player on the screen, required method for game
+/* Draw the player on the screen, required method for game
+ */
 Player.prototype.render = function () {
 
     'use strict';
@@ -286,7 +307,8 @@ Player.prototype.render = function () {
     window.ctx.drawImage(window.Resources.get(this.sprite), this.x, this.y);
 };
 
-// Reset the player to its initial position
+/* Reset the player to its initial position
+ */
 Player.prototype.reset = function () {
 
     'use strict';
@@ -296,7 +318,8 @@ Player.prototype.reset = function () {
     this.activeUserControl = true;
 };
 
-// The player won the game
+/* The player won the game
+ */
 Player.prototype.wonTheGame = function () {
 
     'use strict';
@@ -307,13 +330,16 @@ Player.prototype.wonTheGame = function () {
     // the player is reset to its initial position
     var self = this;
     setTimeout(function () {
+        // erase the top message
         window.ctx.clearRect(0, 0, 505, 40);
+        // reset the player's position
         self.reset();
     }, 1000);
 };
 
-// Check if the player reaches the water
-// Return boolean true if reaches the water || false if not.
+/* Check if the player reaches the water
+ * Return boolean true if reaches the water || false if not.
+ */
 Player.prototype.reachesWater = function () {
 
     'use strict';
@@ -325,7 +351,8 @@ Player.prototype.reachesWater = function () {
     }
 };
 
-// Handle player's collision
+/* Handle player's collision
+ */
 Player.prototype.handleCollision = function () {
 
     'use strict';
@@ -339,44 +366,51 @@ Player.prototype.handleCollision = function () {
     setTimeout(function () { self.reset(); }, 500);
 };
 
-// Player blinks
+/* Player blinks
+ */
 Player.prototype.blinks = function () {
 
     'use strict';
     // backup the actual position
     var backupX = this.x,
-    // to work properly with setTimeout()
+        // to work properly with setTimeout()
         self = this;
-
+    // blinks!
     setTimeout(function () { self.x = -202;    }, 100);
     setTimeout(function () { self.x = backupX; }, 200);
     setTimeout(function () { self.x = -202;    }, 300);
     setTimeout(function () { self.x = backupX; }, 400);
 };
 
-// Now instantiate your objects.
-enemyOne   = new Enemy(59);
-enemyTwo   = new Enemy(142);
-enemyThree = new Enemy(225);
-enemyFour  = new Enemy(59);
-enemyFive  = new Enemy(142);
-enemySix   = new Enemy(225);
+/* This function generates N number of instances of our enemies
+ * Parameter: enemiesNumber, The enemies number
+ * Return array of enemies instances.
+ */
+function generateEnemies(enemiesNumber) {
 
-// Place all enemy objects in an array called allEnemies
-allEnemies = [
-    enemyOne,
-    enemyTwo,
-    enemyThree,
-    enemyFour,
-    enemyFive,
-    enemySix
-];
+    'use strict';
 
-// Place the player object in a variable called player
+    var enemies = [], i;
+
+    for (i = 0; i < enemiesNumber; i += 1) {
+        enemies.push(new Enemy());
+    }
+
+    return enemies;
+}
+
+/* Instantiate all enemy objects
+ * in an array called allEnemies
+ */
+allEnemies = generateEnemies(7);
+
+/* Instantiate player
+ */
 player = new Player();
 
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
+/* This listens for key presses and sends the keys to your
+ * Player.handleInput() method. You don't need to modify this.
+ */
 document.addEventListener('keyup', function (e) {
 
     'use strict';
