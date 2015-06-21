@@ -71,6 +71,15 @@ function drawTheTopMessage(message, fillColor, strokeColor) {
     window.ctx.strokeText(message, 252, 37);
 }
 
+/* Generic class for game characters
+ */
+var Character = function () {
+
+    'use strict';
+
+    var sprite, x, y, width, height;
+}
+
 /* The Enemy's class
  * Enemies our player must avoid
  */
@@ -78,7 +87,7 @@ var Enemy = function () {
 
     'use strict';
     // We declare the properties of our enemies
-    var sprite, x, y, width, height, velocity, road;
+    var velocity, road;
 
     // The image/sprite for our enemies, this uses
     // a helper resources.js
@@ -92,13 +101,18 @@ var Enemy = function () {
     // The initial y-axis generated randomly
     this.y = this.road[getRandomInt(0, 3)];
 
-    // the width and height
+    // Set the width and height
     this.width  = 96;
     this.height = 68;
 
     // The velocity for our enemies generated randomly
     this.velocity = getRandomInt(50, 250);
 };
+
+/* Inherits from Character
+ */
+Enemy.prototype             = Object.create(Character.prototype);
+Enemy.prototype.constructor = Enemy;
 
 /* The space occupied by an enemy at the moment
  * Return object The coordinates in the space occupied by an enemy
@@ -196,7 +210,7 @@ var Player = function () {
 
     'use strict';
     // We declare the properties of our player
-    var sprite, x, y, activeUserControl;
+    var activeUserControl;
 
     // The image/sprite for our player
     this.sprite = 'images/char-boy.png';
@@ -207,7 +221,7 @@ var Player = function () {
     // The initial y-axis
     this.y = 404;
 
-    // Width and height
+    // Set the width and height
     this.width  = 69;
     this.height = 78;
 
@@ -215,6 +229,11 @@ var Player = function () {
     // with the arrow keys
     this.activeUserControl = true;
 };
+
+/* Player inherits from Character
+ */
+Player.prototype             = Object.create(Character.prototype);
+Player.prototype.constructor = Player;
 
 /* Player space
  * Return array The coordinates in the space occupied by the player
