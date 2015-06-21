@@ -22,34 +22,6 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-/* Is there a collision between two objects?
- * This function checks whether there has been a collision
- * between two objects.
- * Parameter: objOne, The object 1
- * Parameter: objTwo, The object 2
- * Return boolean true if collision || false if not.
- */
-function isThereACollision(objOne, objTwo) {
-
-    'use strict';
-    // get the coordinates that occupy objects in space
-    var objOneSpace = objOne.space(),
-        objTwoSpace = objTwo.space(),
-        // collisions from all sides
-        leftCollision  = objOneSpace.leftSide  < objTwoSpace.rightSide,
-        upperCollision = objOneSpace.upperSide < objTwoSpace.lowerSide,
-        rightCollision = objOneSpace.rightSide > objTwoSpace.leftSide,
-        lowerCollision = objOneSpace.lowerSide > objTwoSpace.upperSide,
-        // The space occupied by the object One
-        // is overlapped by the object Two
-        collision = leftCollision  &&
-                    upperCollision &&
-                    rightCollision &&
-                    lowerCollision;
-
-    return (collision === true) ? true : false;
-}
-
 /* This function draws the top message
  * Parameter: message, The message to draw
  * Parameter: fillColor, The fill color
@@ -77,8 +49,31 @@ var Character = function () {
 
     'use strict';
 
-    var sprite, x, y, width, height;
+    var sprite, x, y, width, height, widthEmptySpace, heightEmptySpace;
 }
+
+/* This function checks whether the character
+ * have collided with another object in the game.
+ * Parameter: otherObject, The other object
+ * Return boolean true if collision || false if not.
+ */
+Character.prototype.collideWith = function (otherObject) {
+
+    'use strict';
+    // collisions from sides
+    var leftCollision  = this.space().leftSide  < otherObject.space().rightSide,
+        upperCollision = this.space().upperSide < otherObject.space().lowerSide,
+        rightCollision = this.space().rightSide > otherObject.space().leftSide,
+        lowerCollision = this.space().lowerSide > otherObject.space().upperSide,
+        // The space occupied by a character
+        // is overlapped by the other object?
+        collision = leftCollision  &&
+                    upperCollision &&
+                    rightCollision &&
+                    lowerCollision;
+
+    return (collision === true) ? true : false;
+};
 
 /* The Enemy's class
  * Enemies our player must avoid
@@ -92,18 +87,19 @@ var Enemy = function () {
     // The image/sprite for our enemies, this uses
     // a helper resources.js
     this.sprite = 'images/enemy-bug.png';
+    // Set the empty space of the sprite
+    this.widthEmptySpace  = 2;
+    this.heightEmptySpace = 76;
+    // Set the width and height of our enemy
+    this.width  = 96;
+    this.height = 68;
 
     // The initial x-axis generated randomly
     this.x = getRandomInt(-303, -101);
-
     // 3 different roads for our enemies
     this.road = [59, 142, 225];
     // The initial y-axis generated randomly
     this.y = this.road[getRandomInt(0, 3)];
-
-    // Set the width and height
-    this.width  = 96;
-    this.height = 68;
 
     // The velocity for our enemies generated randomly
     this.velocity = getRandomInt(50, 250);
@@ -111,7 +107,7 @@ var Enemy = function () {
 
 /* Inherits from Character
  */
-Enemy.prototype             = Object.create(Character.prototype);
+Enemy.prototype = Object.create(Character.prototype);
 Enemy.prototype.constructor = Enemy;
 
 /* The space occupied by an enemy at the moment
@@ -121,12 +117,11 @@ Enemy.prototype.space = function () {
 
     'use strict';
 
-    var space, leftSide, upperSide, rightSide, lowerSide,
-        widthEmptySpace = 2, heightEmptySpace = 76;
+    var space, leftSide, upperSide, rightSide, lowerSide;
     // Delimiting the real space by eliminating
     // the empty space of the image/sprite
-    leftSide  = this.x + widthEmptySpace;
-    upperSide = this.y + heightEmptySpace;
+    leftSide  = this.x + this.widthEmptySpace;
+    upperSide = this.y + this.heightEmptySpace;
     rightSide = leftSide  + this.width;
     lowerSide = upperSide + this.height;
 
@@ -150,7 +145,7 @@ Enemy.prototype.update = function (dt) {
     var distance;
 
     // check if is there a collision
-    if (isThereACollision(this, player) === true) {
+    if (this.collideWith(player) === true) {
         // handle collision
         this.handleCollision();
         player.handleCollision();
@@ -214,16 +209,17 @@ var Player = function () {
 
     // The image/sprite for our player
     this.sprite = 'images/char-boy.png';
+    // Set the empty space of the sprite
+    this.widthEmptySpace  = 16;
+    this.heightEmptySpace = 62;
+    // Set the width and height of our player
+    this.width  = 69;
+    this.height = 78;
 
     // The initial x-axis
     this.x = 202;
-
     // The initial y-axis
     this.y = 404;
-
-    // Set the width and height
-    this.width  = 69;
-    this.height = 78;
 
     // To switch on/off the control of the player
     // with the arrow keys
@@ -232,7 +228,7 @@ var Player = function () {
 
 /* Player inherits from Character
  */
-Player.prototype             = Object.create(Character.prototype);
+Player.prototype = Object.create(Character.prototype);
 Player.prototype.constructor = Player;
 
 /* Player space
@@ -242,12 +238,11 @@ Player.prototype.space = function () {
 
     'use strict';
 
-    var space, leftSide, upperSide, rightSide, lowerSide,
-        widthEmptySpace = 16, heightEmptySpace = 62;
+    var space, leftSide, upperSide, rightSide, lowerSide;
     // Delimiting the real space by eliminating
     // the empty space of the image/sprite
-    leftSide  = this.x + widthEmptySpace;
-    upperSide = this.y + heightEmptySpace;
+    leftSide  = this.x + this.widthEmptySpace;
+    upperSide = this.y + this.heightEmptySpace;
     rightSide = leftSide  + this.width;
     lowerSide = upperSide + this.height;
 
