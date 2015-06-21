@@ -50,7 +50,41 @@ var Character = function () {
     'use strict';
 
     var sprite, x, y, width, height, widthEmptySpace, heightEmptySpace;
-}
+};
+
+/* Draw the character on the screen, required method for game
+ */
+Character.prototype.render = function () {
+
+    'use strict';
+
+    window.ctx.drawImage(window.Resources.get(this.sprite), this.x, this.y);
+};
+
+/* The space occupied by a character at the moment
+ * Return object The coordinates in the space occupied by a character
+ */
+Character.prototype.space = function () {
+
+    'use strict';
+
+    var space, leftSide, upperSide, rightSide, lowerSide;
+    // Delimiting the real space by eliminating
+    // the empty space of the image/sprite
+    leftSide  = this.x + this.widthEmptySpace;
+    upperSide = this.y + this.heightEmptySpace;
+    rightSide = leftSide  + this.width;
+    lowerSide = upperSide + this.height;
+
+    space = {
+        leftSide : leftSide,
+        upperSide: upperSide,
+        rightSide: rightSide,
+        lowerSide: lowerSide
+    };
+
+    return space;
+};
 
 /* This function checks whether the character
  * have collided with another object in the game.
@@ -110,31 +144,6 @@ var Enemy = function () {
 Enemy.prototype = Object.create(Character.prototype);
 Enemy.prototype.constructor = Enemy;
 
-/* The space occupied by an enemy at the moment
- * Return object The coordinates in the space occupied by an enemy
- */
-Enemy.prototype.space = function () {
-
-    'use strict';
-
-    var space, leftSide, upperSide, rightSide, lowerSide;
-    // Delimiting the real space by eliminating
-    // the empty space of the image/sprite
-    leftSide  = this.x + this.widthEmptySpace;
-    upperSide = this.y + this.heightEmptySpace;
-    rightSide = leftSide  + this.width;
-    lowerSide = upperSide + this.height;
-
-    space = {
-        leftSide : leftSide,
-        upperSide: upperSide,
-        rightSide: rightSide,
-        lowerSide: lowerSide
-    };
-
-    return space;
-};
-
 /* Update the enemy's position, required method for game
  * Parameter: dt, a time delta between ticks
  */
@@ -162,15 +171,6 @@ Enemy.prototype.update = function (dt) {
     // all computers.
     distance = Math.round(this.velocity * dt);
     this.x   += distance;
-};
-
-/* Draw the enemy on the screen, required method for game
- */
-Enemy.prototype.render = function () {
-
-    'use strict';
-
-    window.ctx.drawImage(window.Resources.get(this.sprite), this.x, this.y);
 };
 
 /* Reset the enemy on the screen
@@ -231,29 +231,58 @@ var Player = function () {
 Player.prototype = Object.create(Character.prototype);
 Player.prototype.constructor = Player;
 
-/* Player space
- * Return array The coordinates in the space occupied by the player
+/* Update player position, required method for game
  */
-Player.prototype.space = function () {
+Player.prototype.update = function () {
 
     'use strict';
 
-    var space, leftSide, upperSide, rightSide, lowerSide;
-    // Delimiting the real space by eliminating
-    // the empty space of the image/sprite
-    leftSide  = this.x + this.widthEmptySpace;
-    upperSide = this.y + this.heightEmptySpace;
-    rightSide = leftSide  + this.width;
-    lowerSide = upperSide + this.height;
+    if (this.reachesWater() === true) {
+        // the player won the game
+        this.wonTheGame();
+    }
+};
 
-    space = {
-        leftSide : leftSide,
-        upperSide: upperSide,
-        rightSide: rightSide,
-        lowerSide: lowerSide
-    };
+/* Reset the player to its initial position
+ */
+Player.prototype.reset = function () {
 
-    return space;
+    'use strict';
+
+    this.x = 202;
+    this.y = 404;
+    this.activeUserControl = true;
+};
+
+/* Handle player's collision
+ */
+Player.prototype.handleCollision = function () {
+
+    'use strict';
+
+    // stop the player (no control with the arrow keys)
+    this.activeUserControl = false;
+    // the player blinks some milliseconds
+    this.blinks();
+    // the player is reset to its initial position
+    var self = this;
+    setTimeout(function () { self.reset(); }, 500);
+};
+
+/* Player blinks
+ */
+Player.prototype.blinks = function () {
+
+    'use strict';
+    // backup the actual position
+    var backupX = this.x,
+        // to work properly with setTimeout()
+        self = this;
+    // blinks!
+    setTimeout(function () { self.x = -202;    }, 100);
+    setTimeout(function () { self.x = backupX; }, 200);
+    setTimeout(function () { self.x = -202;    }, 300);
+    setTimeout(function () { self.x = backupX; }, 400);
 };
 
 /* Handle input, required method for game
@@ -288,36 +317,14 @@ Player.prototype.handleInput = function (keyPressed) {
     }
 };
 
-/* Update player position, required method for game
+/* Check if the player reaches the water
+ * Return boolean true if reaches the water || false if not.
  */
-Player.prototype.update = function () {
+Player.prototype.reachesWater = function () {
 
     'use strict';
 
-    if (this.reachesWater() === true) {
-        // the player won the game
-        this.wonTheGame();
-    }
-};
-
-/* Draw the player on the screen, required method for game
- */
-Player.prototype.render = function () {
-
-    'use strict';
-
-    window.ctx.drawImage(window.Resources.get(this.sprite), this.x, this.y);
-};
-
-/* Reset the player to its initial position
- */
-Player.prototype.reset = function () {
-
-    'use strict';
-
-    this.x = 202;
-    this.y = 404;
-    this.activeUserControl = true;
+    return (this.y === -11) ? true : false;
 };
 
 /* The player won the game
@@ -337,47 +344,6 @@ Player.prototype.wonTheGame = function () {
         // reset the player's position
         self.reset();
     }, 1000);
-};
-
-/* Check if the player reaches the water
- * Return boolean true if reaches the water || false if not.
- */
-Player.prototype.reachesWater = function () {
-
-    'use strict';
-
-    return (this.y === -11) ? true : false;
-};
-
-/* Handle player's collision
- */
-Player.prototype.handleCollision = function () {
-
-    'use strict';
-
-    // stop the player (no control with the arrow keys)
-    this.activeUserControl = false;
-    // the player blinks some milliseconds
-    this.blinks();
-    // the player is reset to its initial position
-    var self = this;
-    setTimeout(function () { self.reset(); }, 500);
-};
-
-/* Player blinks
- */
-Player.prototype.blinks = function () {
-
-    'use strict';
-    // backup the actual position
-    var backupX = this.x,
-        // to work properly with setTimeout()
-        self = this;
-    // blinks!
-    setTimeout(function () { self.x = -202;    }, 100);
-    setTimeout(function () { self.x = backupX; }, 200);
-    setTimeout(function () { self.x = -202;    }, 300);
-    setTimeout(function () { self.x = backupX; }, 400);
 };
 
 /* This function generates N number of instances of our enemies
